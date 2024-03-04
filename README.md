@@ -37,5 +37,5 @@ and check the dmesg
 sudo dmesg
 ```
 ## Current issue
-- Only a short message can be print in dmesg through the socket module
+- Only a short message can be print in dmesg through the socket module (Fixed. This is due to unproper iovec and msghdr setup in server)
 - You have to stop the socket module or use a seperate client module to stop the socket module 

@@ -8,6 +8,7 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("bhhoang");
 MODULE_DESCRIPTION("Server Module");
+
 #define SERVER_PORT 3000
 
 static struct socket *sock_listen = NULL;
@@ -43,7 +44,7 @@ static int __init server_init(void)
         goto out_sock_release;
     }
 
-    recv_buf = kmalloc(80 * sizeof(char), GFP_KERNEL);
+    recv_buf = kmalloc(1024, GFP_KERNEL);
     if (!recv_buf) {
         printk(KERN_ERR "Server: Memory allocation for receive buffer failed\n");
         ret = -ENOMEM;
@@ -52,19 +53,22 @@ static int __init server_init(void)
 
     while (server_running) {
         ret = kernel_accept(sock_listen, &sock_client, 0);
-        if (ret < 0) {
+        if (ret < 0) { 
             printk(KERN_ERR "Server: Accept failed with error %d\n", ret);
             continue; // Try to accept the next connection
         }
         
         memset(recv_buf, 0, sizeof(recv_buf));
-        ret = kernel_recvmsg(sock_client, (struct msghdr *)recv_buf, (struct kvec *)recv_buf, 1, 80 * sizeof(char), 0);
+        // Receive message from client
+        ret = kernel_recvmsg(sock_client, (struct msghdr *)recv_buf, (struct kvec *)recv_buf, 1, 1024, 0);
         if (ret > 0) {
-            printk(KERN_INFO "Server: Received message - %s\n", recv_buf);
-            // Check if the received message is "exit"
+            printk(KERN_INFO "Server: Received message with size of %d", ret);
+            // If message is "exit", stop the server
             if (strcmp(recv_buf, "exit") == 0) {
+                printk(KERN_INFO "Server: Received exit command\n");
                 server_running = false;
-                printk(KERN_INFO "Server: Exit\n");
+                // Exit the server loop
+                break;
             }
         } else {
             printk(KERN_ERR "Server: Receive failed or connection closed\n");

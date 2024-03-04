@@ -18,8 +18,8 @@ static int __init client_init(void)
     struct msghdr msg;
     struct kvec vec;
     // 
-    char *data = "Hello, from the client kernel!"; // Message = "exit" will stop the server
-    //char *data = "exit"; // Message = "exit" will stop the server
+    // char *data = "Hello, from the client kernel!"; // Message = "exit" will stop the server
+    char *data = "exit"; // Message = "exit" will stop the server
     
     int len, ret;
 

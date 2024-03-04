@@ -20,7 +20,7 @@ void monitor_callback(const char *data, size_t length) {
     // Send the received data to the server
     struct socket *sock;
     struct sockaddr_in sin;
-    struct msghdr msg = {0};
+    struct msghdr msg;
     struct kvec vec;
 
     int len, ret;
@@ -47,12 +47,12 @@ void monitor_callback(const char *data, size_t length) {
 
     // Prepare message
     memset(&msg, 0, sizeof(msg));
-    vec.iov_base = (char *)data;
-    vec.iov_len = strlen(data);
+    vec.iov_base = (void *)data;
+    vec.iov_len = length;
 
     // Send message
     len = kernel_sendmsg(sock, &msg, &vec, 1, length);
-    (len > 0) ? printk(KERN_INFO "Client: Message sent with content: %s\n and length: %d\n", data, len) : printk(KERN_ERR "Client: Send failed with error %d\n", len);
+    (len > 0) ? printk(KERN_INFO "Client: Message sent with content: %s and length: %d\n", data, len) : printk(KERN_ERR "Client: Send failed with error %d\n", len);
     // Cleanup
     sock_release(sock);
 
